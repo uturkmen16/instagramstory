@@ -37,7 +37,7 @@ class Story extends StatelessWidget {
                 ],)
             )
         ),
-        onTapDown: (TapDownDetails details) {
+        onHorizontalDragStart: (DragStartDetails details) {
           controller.controller!.pause();
           double width = MediaQuery.of(context).size.width ;
           double height = MediaQuery.of(context).size.height;
@@ -52,11 +52,21 @@ class Story extends StatelessWidget {
           }
           print('x: ${details.globalPosition}');
         },
-        onTapUp: (TapUpDetails details) {
-          controller.controller!.play();
+        onHorizontalDragEnd: (DragEndDetails details) {
+        controller.controller!.play();
+        double width = MediaQuery.of(context).size.width ;
+        double height = MediaQuery.of(context).size.height;
+        double dx = details.velocity.pixelsPerSecond.dx;
+        if(dx < width / 2) {
           for(int i = 0; i < 50; i++)
-            print('play');
-        },
+            print(dx);
+        }
+        else {
+          for(int i = 0; i < 50; i++)
+            print(dx);
+        }
+        print('x: ${dx}');
+      },
       );
     });
   }
