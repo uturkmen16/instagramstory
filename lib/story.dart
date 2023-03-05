@@ -5,12 +5,16 @@ import 'package:instagramstory/story.dart';
 import 'package:video_player/video_player.dart';
 
 class Story extends StatelessWidget {
-  // You can ask Get to find a Controller that is being used by another page and redirect you to it.
-  final Controller c = Get.find();
 
+  final Controller c = Get.find();
+  final VideoPlayerControllergetx controller = Get.put(VideoPlayerControllergetx("https://images.all-free-download.com/footage_preview/mp4/tiny_wild_bird_searching_for_food_in_nature_6892037.mp4"));
   @override
   Widget build(context){
-    final VideoPlayerControllergetx controller = Get.put(VideoPlayerControllergetx("https://images.all-free-download.com/footage_preview/mp4/tiny_wild_bird_searching_for_food_in_nature_6892037.mp4"));
+    //https://www.sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4
+    //https://www.sample-videos.com/video123/mp4/720/big_buck_bunny_720p_2mb.mp4
+    //https://www.sample-videos.com/video123/mp4/720/big_buck_bunny_720p_5mb.mp4
+    //https://images.all-free-download.com/footage_preview/mp4/tiny_wild_bird_searching_for_food_in_nature_6892037.mp4
+    //http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4
     // Access the updated count variable
     return Obx(() {
       return GestureDetector(
@@ -29,9 +33,17 @@ class Story extends StatelessWidget {
                           ),
                         ],
                       ),
+                  LinearProgressIndicator(
+                    backgroundColor: Colors.orangeAccent,
+                    valueColor: AlwaysStoppedAnimation(Colors.blue),
+                    minHeight: 25,
+                    value: controller.pos.value.inMilliseconds == 0 ? 0.0 : controller.pos.value.inMilliseconds / controller.controller!.value.duration.inMilliseconds,
+                  ),
                   TextButton(
                       onPressed: () {
-                        controller.initializeVideoPlayer();
+                        print(controller.pos.value.inMilliseconds);
+                        print(controller.controller!.value.duration.inMilliseconds);
+                        print(controller.pos.value.inMilliseconds / controller.controller!.value.duration.inMilliseconds);
                         },
                       child: Text("button")),
                 ],)
@@ -42,14 +54,6 @@ class Story extends StatelessWidget {
           double width = MediaQuery.of(context).size.width ;
           double height = MediaQuery.of(context).size.height;
           double dx = details.globalPosition.dx;
-          if(dx < width / 2) {
-            for(int i = 0; i < 50; i++)
-              print('left');
-          }
-          else {
-            for(int i = 0; i < 50; i++)
-              print('right');
-          }
           print('x: ${details.globalPosition}');
         },
         onHorizontalDragEnd: (DragEndDetails details) {
@@ -75,21 +79,32 @@ class Story extends StatelessWidget {
 
 class VideoPlayerControllergetx extends GetxController {
   VideoPlayerController? _controller;
+  var dur = Duration().obs;
+  var pos = Duration().obs;
 
   VideoPlayerControllergetx(String url){
     _controller = VideoPlayerController.network(url);
   }
 
+  @override
+  void onInit() {
+    // TODO: implement onInit
+    initializeVideoPlayer();
+    super.onInit();
+  }
+
   void initializeVideoPlayer() {
-    print(_controller == null);
-    _controller!.addListener(() => update());
+    _controller!.addListener(() {
+      //pos.value = Duration(milliseconds: _controller!.value.position.inMilliseconds.round());
+      pos.value = _controller!.value.position;
+      update();
+    });
     _controller!.setLooping(true);
     _controller!.initialize().then((_) {
       _controller!.play();
+      dur.value = _controller!.value.duration;
       update();
     });
-    print(_controller == null);
-    update();
   }
 
   VideoPlayerController? get controller => _controller;
