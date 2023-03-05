@@ -22,7 +22,8 @@ class Story extends StatelessWidget {
     //throw UnimplementedError();
     return Obx(() => Center(
           child: Column(children: [
-            controller.controller == null ? Text('asd') : Text('duration ${controller.pos.value}'),
+            //I Don't know how this works, it needs to change. Whenever i delete this, other videos than the first video do not play.
+            controller.controller == null ? Text('asd') : Visibility(child: Text('duration ${controller.pos.value}'), visible: false,),
             //Image.network("https://media4.giphy.com/media/hryis7A55UXZNCUTNA/giphy.gif?cid=6c09b9525iv3i8yb7jwv656f7tu7w5ji4y3z0s0l3bacq3er&rid=giphy.gif&ct=g"),
             controller.controller == null ?
             Text("controller.controller!") :

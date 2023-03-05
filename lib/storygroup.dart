@@ -1,4 +1,5 @@
 import 'dart:ffi';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -27,60 +28,54 @@ class StoryGroup extends StatelessWidget {
      */return Obx(() {
       return GestureDetector(
         child: Scaffold(
-            body:Column(
-              children: [
-                storyGroupController.currentStory.value,
-                TextButton(
-                    onPressed: () {
-                      storyGroupController.nextStory();
-                    },
-                    child: Text("asd")
-                ),
-                storyGroupController.controller.controller == null ? Text('asd') : Text('duration ${storyGroupController.controller.pos.value}'),
-                    /*
-                    ListView.builder(
-                      scrollDirection: Axis.vertical,
-                      shrinkWrap: true,
-                      physics: NeverScrollableScrollPhysics(),
-                      itemCount: storyGroupController.stories.length,
-                      itemBuilder: (BuildContext context, int index) {
-                            return SizedBox(
-                              child: LinearProgressIndicator(
-                                backgroundColor: Colors.brown,
-                                valueColor: AlwaysStoppedAnimation(Colors.grey),
-                                minHeight: 20,
-                                value: storyGroupController.controller.pos.value.inMilliseconds == 0 ? 0.0 : storyGroupController.controller.pos.value.inMilliseconds / storyGroupController.controller.dur.value.inMilliseconds,
-                              ),
-                            );
+            body:Transform(
+              alignment: Alignment.center,
+              transform: //Matrix4.skew(0.0, ((storyGroupController.horizontalDragStart.value.dx - storyGroupController.horizontalDrag.value.dx) / MediaQuery.of(context).size.width)),
+              //Matrix4.skew(0.0, ((storyGroupController.horizontalDragStart.value.dx - storyGroupController.horizontalDrag.value.dx) / MediaQuery.of(context).size.width))
+                Matrix4.identity()
+                ..scale((2 - ((storyGroupController.horizontalDragStart.value.dx - storyGroupController.horizontalDrag.value.dx) / (MediaQuery.of(context).size.width * 2)).abs()) / 2)
+                ..translate(-(storyGroupController.horizontalDragStart.value.dx - storyGroupController.horizontalDrag.value.dx))
+                ..setEntry(3, 2, 0.001)
+              ..rotateY(pi * ((storyGroupController.horizontalDragStart.value.dx - storyGroupController.horizontalDrag.value.dx) / (MediaQuery.of(context).size.width * 1.8))),
+              child: Column(
+                children: [
+                  storyGroupController.currentStory.value,
+                  TextButton(
+                      onPressed: () {
+                        storyGroupController.nextStory();
                       },
-                    ),
-
-                     */
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: List.generate(
-                    storyGroupController.stories.length,
-                        (index) => SizedBox(
-                          width: MediaQuery.of(context).size.width / (storyGroupController.stories.length + 1),
-                          child: LinearProgressIndicator(
-                            backgroundColor: Colors.brown,
-                            valueColor: AlwaysStoppedAnimation(Colors.grey),
-                            minHeight: 20,
-                            value: index > storyGroupController.activeStoryIndex.value ? 0.0 : (index < storyGroupController.activeStoryIndex.value ? 1.0 : (storyGroupController.controller.pos.value.inMilliseconds == 0 ? 0.0 : storyGroupController.controller.pos.value.inMilliseconds / storyGroupController.controller.dur.value.inMilliseconds)),
-                          ),
-                        ),
+                      child: Text("asd")
                   ),
-                )
+                  storyGroupController.controller.controller == null ? Text('asd') : Text('duration ${storyGroupController.controller.pos.value}'),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: List.generate(
+                      storyGroupController.stories.length,
+                          (index) => SizedBox(
+                        width: MediaQuery.of(context).size.width / (storyGroupController.stories.length + 1),
+                        child: LinearProgressIndicator(
+                          backgroundColor: Colors.brown,
+                          valueColor: AlwaysStoppedAnimation(Colors.grey),
+                          minHeight: 20,
+                          value: index > storyGroupController.activeStoryIndex.value ? 0.0 : (index < storyGroupController.activeStoryIndex.value ? 1.0 : (storyGroupController.controller.pos.value.inMilliseconds == 0 ? 0.0 : storyGroupController.controller.pos.value.inMilliseconds / storyGroupController.controller.dur.value.inMilliseconds)),
+                        ),
+                      ),
+                    ),
+                  )
 
-              ],
-            ),
+                ],
+              ),
+            )
         ),
+        onTapDown: (TapDownDetails details) {
+          print("tapped");
+        },
         onHorizontalDragStart: (DragStartDetails details) {
           storyGroupController.controller.controller.value.pause();
-          double width = MediaQuery.of(context).size.width ;
-          double height = MediaQuery.of(context).size.height;
-          double dx = details.globalPosition.dx;
-          print('x: ${details.globalPosition}');
+          storyGroupController.horizontalDragStart.value = details.globalPosition;
+        },
+        onHorizontalDragUpdate: (DragUpdateDetails details) {
+          storyGroupController.horizontalDrag.value = details.globalPosition;
         },
         onHorizontalDragEnd: (DragEndDetails details) {
           if(!storyGroupController.currentStory.value.controller.hasFinished.value)
@@ -105,6 +100,8 @@ class StoryGroup extends StatelessWidget {
 
 class StoryGroupController extends GetxController{
   RxInt activeStoryIndex = 0.obs;
+  Rx<Offset> horizontalDragStart = Offset(0, 0).obs;
+  Rx<Offset> horizontalDrag = Offset(0, 0).obs;
   late VideoPlayerControllergetx controller;
   late List<String> stories;
   late Rx<Story> currentStory;
