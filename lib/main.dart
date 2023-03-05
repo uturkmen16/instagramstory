@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:instagramstory/main.dart';
 import 'package:instagramstory/story.dart';
+import 'package:instagramstory/storygroup.dart';
 import 'package:video_player/video_player.dart';
 
 void main() => runApp(GetMaterialApp(home: Home()));
@@ -25,7 +26,7 @@ class Home extends StatelessWidget {
 
         // Replace the 8 lines Navigator.push by a simple Get.to(). You don't need context
         body: Center(child: ElevatedButton(
-            child: Text("Go to Other"), onPressed: () => Get.to(Story()))),
+            child: Text("Go to Other"), onPressed: () => Get.to(StoryGroup()))),
         floatingActionButton:
         FloatingActionButton(child: Icon(Icons.add), onPressed: c.increment));
   }
